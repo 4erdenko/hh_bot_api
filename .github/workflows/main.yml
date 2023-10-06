@@ -42,7 +42,7 @@ jobs:
           tags: ${{ github.repository }}:latest
 
   deploy:
-    needs: build
+    needs: docker
     runs-on: ubuntu-latest
     steps:
       - name: Start deploying
