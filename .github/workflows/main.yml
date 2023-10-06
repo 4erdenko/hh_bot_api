@@ -59,6 +59,8 @@ jobs:
             ${{ secrets.ENV }}
             EOF
 
+      - name: Checkout code
+        uses: actions/checkout@v4
       - name: SCP docker-compose file
         uses: appleboy/scp-action@master
         with:
@@ -68,6 +70,7 @@ jobs:
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
           source: "docker-compose.yml"
           target: "${{ secrets.FOLDER_NAME }}"
+
 
       - name: Run docker commands
         uses: appleboy/ssh-action@master
