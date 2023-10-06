@@ -1,0 +1,13 @@
+**/__pycache__
+.idea
+.github
+venv
+.git
+*.pkl
+.gitignore
+.env_new_example
+.env
+docker-compose.yml
+Dockerfile
+*.json
+*.cfg

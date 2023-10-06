@@ -1,0 +1,9 @@
+version: '3.9'
+
+services:
+  upwork_parser:
+    container_name: upwork
+    restart: unless-stopped
+    image: ghcr.io/4erdenko/upwork-api-parser/upwork-api-parser:latest
+    env_file:
+      - .env
