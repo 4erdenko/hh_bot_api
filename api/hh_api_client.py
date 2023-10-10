@@ -3,6 +3,7 @@ from typing import Any, Dict
 
 import httpx
 
+from external_services.anti_captcha import get_captcha_solution
 from settings.config import config
 
 logger = logging.getLogger(__name__)
@@ -52,12 +53,37 @@ class HHBotApi:
                 self.LOGIN_URL, headers=self.HEADERS, data=self.PAYLOAD
             )
             user_hhid = response.json().get('hhid')
-            if user_hhid:
-                logger.info(config.LOG_LOGIN_SUCCESS)
+            is_bot = response.json().get('hhcaptcha').get('isBot')
+            if is_bot:
+                logger.warning(config.LOG_CAPTCHA)
+                await self._captcha_handler(response)
+                await self._login()
             else:
-                logger.error(config.LOG_LOGIN_ERROR)
+                if user_hhid:
+                    logger.info(config.LOG_LOGIN_SUCCESS)
+                else:
+                    logger.error(config.LOG_LOGIN_ERROR)
         except Exception as e:
             logger.info(f'{config.LOG_EXCEPTION}: {e}')
+
+    async def _captcha_handler(self, response):
+        state = response.json().get('hhcaptcha').get('captchaState')
+        key, image_url = await self._get_captcha()
+        captcha_text = await get_captcha_solution(image_url)
+        self.PAYLOAD.update(
+            {
+                'captchaText': captcha_text,
+                'captchaState': state,
+                'captchaKey': key,
+            }
+        )
+
+    async def _get_captcha(self):
+        get_key = await self.client.post(config.CAPTCHA_LINK)
+
+        key = get_key.json().get('key')
+        image = f'{config.CAPTCHA_IMAGE_LINK}{key}'
+        return key, image
 
     async def update_resume(self, resume_id: str) -> None:
         try:
@@ -66,10 +92,14 @@ class HHBotApi:
             response: httpx.Response = await self.client.post(
                 self.RESUME_URL, data=self.PAYLOAD_UP, headers=self.HEADERS
             )
+
             if response.status_code == httpx.codes.FORBIDDEN:
                 logger.error(config.LOG_HTTP_EXCEPTION)
                 raise config.LOG_HTTP_EXCEPTION
-            elif response.status_code == httpx.codes.FOUND:
+            elif (
+                response.status_code == httpx.codes.FOUND
+                or response.status_code == httpx.codes.CONFLICT
+            ):
                 logger.info(config.LOG_ALREADY_UPDATED)
             else:
                 logger.info(config.LOG_RESUME_UPDATE_SUCCESS)
