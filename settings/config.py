@@ -15,8 +15,13 @@ class Config(BaseSettings):
     USER_AGENT: str = Field(
         ...,
     )
+    ANTICAPTCHA_API_KEY: str = Field(
+        ...,
+    )
     LOGIN_LINK: str = 'https://hh.ru/account/login?backurl=%2F'
     RESUME_UP_POST_LINK: str = 'https://hh.ru/applicant/resumes/touch'
+    CAPTCHA_LINK: str = 'https://hh.ru/captcha?lang=EN'
+    CAPTCHA_IMAGE_LINK: str = 'https://hh.ru/captcha/picture?key='
     RESUME_LINKS: str = Field(
         ...,
     )
@@ -29,6 +34,7 @@ class Config(BaseSettings):
     LOG_PRE_LOGIN: str = 'Performing pre-login steps.'
     LOG_LOGIN: str = 'Performing login.'
     LOG_LOGIN_ERROR: str = 'Login failed!'
+    LOG_CAPTCHA: str = 'Got captcha!'
     LOG_RESUME_UPDATE: str = 'Updating resume with ID: {}'
     LOG_PRE_LOGIN_SUCCESS: str = 'Successfully acquired X-XSRFToken.'
     LOG_LOGIN_SUCCESS: str = 'Successfully logged in.'
