@@ -37,7 +37,7 @@ HH Bot API is a tool designed for automating actions on the HeadHunter platform.
 
 - Using Docker Compose:
   ```bash
-  docker-compose up
+  docker compose up -d
   ```
 
 ## Configuration
