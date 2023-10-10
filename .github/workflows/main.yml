@@ -42,7 +42,7 @@ jobs:
           tags: ${{ github.repository }}:latest
 
   deploy:
-    needs: build
+    needs: docker
     runs-on: ubuntu-latest
     steps:
       - name: Start deploying
@@ -59,6 +59,8 @@ jobs:
             ${{ secrets.ENV }}
             EOF
 
+      - name: Checkout code
+        uses: actions/checkout@v4
       - name: SCP docker-compose file
         uses: appleboy/scp-action@master
         with:
@@ -69,6 +71,7 @@ jobs:
           source: "docker-compose.yml"
           target: "${{ secrets.FOLDER_NAME }}"
 
+
       - name: Run docker commands
         uses: appleboy/ssh-action@master
         with:
@@ -78,7 +81,7 @@ jobs:
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
           script: |
             cd ${{ secrets.FOLDER_NAME }}
-            docker compose down
-            docker system prune -a -f
-            docker compose pull
-            docker compose up -d
+            sudo docker compose down
+            sudo docker system prune -a -f
+            sudo docker compose pull
+            sudo docker compose up -d
